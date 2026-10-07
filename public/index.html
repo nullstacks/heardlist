@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Heardlist — free proxy list API (HTTP, HTTPS, SOCKS4, SOCKS5)</title>
+  <meta name="description" content="A free public API for HTTP, HTTPS, SOCKS4 and SOCKS5 proxy lists, refreshed hourly from community sources. No key, no signup, CORS open.">
+  <meta name="theme-color" content="#1b2ce0">
+  <meta property="og:title" content="Heardlist — free proxy list API">
+  <meta property="og:description" content="HTTP, HTTPS, SOCKS4 and SOCKS5 proxy lists, refreshed hourly. No key. No signup.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/landing.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="top" id="top">
+    <div class="top-in">
+      <a class="brand" href="/" aria-label="Heardlist home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <circle cx="9" cy="23" r="3" fill="var(--signal)" stroke="none"/>
+          <path d="M9 14a9 9 0 0 1 9 9" stroke="var(--signal)"/>
+          <path d="M9 7a16 16 0 0 1 16 16" stroke="var(--signal)"/>
+        </svg>
+        Heardlist
+      </a>
+      <nav aria-label="Primary">
+        <a href="#try">Try it</a>
+        <a href="#sources">Sources</a>
+        <a href="#safety">Safety</a>
+        <a class="nav-docs" href="/docs/">Docs</a>
+      </nav>
+    </div>
+    <div class="dial" aria-hidden="true"><i class="needle"></i></div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="h1">
+      <div class="hero-in">
+        <div class="hero-copy">
+          <h1 id="h1">Free proxy lists, heard this&nbsp;hour.</h1>
+          <p class="lede">A public API for HTTP, HTTPS, SOCKS4 and SOCKS5 proxies. Refreshed hourly from community sources, ranked by who actually checks them. No key. No signup.</p>
+          <div class="cta">
+            <a class="btn btn-signal" href="/docs/">Read the docs <span aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost" href="#try">Try a query</a>
+          </div>
+          <div class="cmd" role="group" aria-label="Example request">
+            <code id="hero-cmd">curl "<span data-base>https://YOUR-HOST</span>/v1/random?protocol=socks5"</code>
+            <button class="copy" type="button" data-copy="#hero-cmd" aria-label="Copy command">Copy</button>
+          </div>
+        </div>
+
+        <figure class="qsl-wrap">
+          <article class="qsl" id="qsl" aria-live="polite" aria-busy="true" data-state="loading">
+            <svg class="postmark" viewBox="0 0 120 120" aria-hidden="true">
+              <defs><path id="pm-arc" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0"/></defs>
+              <circle cx="60" cy="60" r="55" fill="none" stroke="currentColor" stroke-width="2"/>
+              <circle cx="60" cy="60" r="30" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <text font-family="JetBrains Mono, monospace" font-size="9" font-weight="600" fill="currentColor"><textPath href="#pm-arc" startOffset="0" textLength="268" lengthAdjust="spacing">REFRESHED HOURLY · REFRESHED HOURLY ·</textPath></text>
+              <text id="pm-day" x="60" y="58" text-anchor="middle" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="17" fill="currentColor">—</text>
+              <text id="pm-time" x="60" y="73" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="500" font-size="9" fill="currentColor">UTC</text>
+            </svg>
+
+            <div class="qsl-head">
+              <span class="qsl-title">One station, heard</span>
+              <span class="qsl-proto" id="q-proto">—</span>
+            </div>
+
+            <div class="qsl-station">
+              <span class="label">Station</span>
+              <output id="q-station" class="station">—</output>
+            </div>
+
+            <dl class="qsl-grid">
+              <div><dt>Location</dt><dd id="q-country">—</dd></div>
+              <div><dt>Response</dt><dd id="q-latency">—</dd></div>
+              <div><dt>Anonymity</dt><dd id="q-anon">—</dd></div>
+              <div><dt>Source</dt><dd id="q-source">—</dd></div>
+            </dl>
+
+            <p class="qsl-msg" id="q-msg" hidden></p>
+
+            <div class="qsl-foot">
+              <button class="btn btn-ink" id="q-again" type="button">Draw another</button>
+              <button class="btn btn-quiet" id="q-copy" type="button">Copy URL</button>
+              <span class="qsl-73">73 — don’t send logins through it.</span>
+            </div>
+            <noscript><p class="qsl-msg">This card draws a live station from the API. Enable JavaScript, or call <code>/v1/random</code> yourself.</p></noscript>
+          </article>
+        </figure>
+      </div>
+
+      <p class="ticker" id="ticker" aria-live="polite">
+        <span class="skeleton-line" aria-hidden="true"></span>
+      </p>
+    </section>
+
+    <!-- TRY -->
+    <section class="try on-paper" id="try" aria-labelledby="try-h">
+      <div class="wrap try-grid">
+        <div class="try-side">
+          <h2 id="try-h">Ask the list for what you need.</h2>
+          <p class="muted">Every control here is a query parameter. The URL below is the whole integration.</p>
+
+          <form class="controls" id="controls" onsubmit="return false">
+            <fieldset>
+              <legend>Protocol</legend>
+              <div class="seg" role="radiogroup" aria-label="Protocol">
+                <label><input type="radio" name="protocol" value="" checked><span>Any</span></label>
+                <label><input type="radio" name="protocol" value="http"><span>HTTP</span></label>
+                <label><input type="radio" name="protocol" value="https"><span>HTTPS</span></label>
+                <label><input type="radio" name="protocol" value="socks4"><span>SOCKS4</span></label>
+                <label><input type="radio" name="protocol" value="socks5"><span>SOCKS5</span></label>
+              </div>
+            </fieldset>
+
+            <div class="row2">
+              <label class="field">
+                <span>Country</span>
+                <input id="f-country" name="country" type="text" inputmode="text" autocomplete="off" spellcheck="false" maxlength="40" placeholder="US, DE, IN">
+              </label>
+              <label class="field">
+                <span>How many</span>
+                <select id="f-limit" name="limit">
+                  <option>10</option><option>25</option><option>100</option><option>500</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="row2">
+              <label class="field">
+                <span>Format</span>
+                <select id="f-format" name="format">
+                  <option value="json">JSON</option>
+                  <option value="txt">Plain text</option>
+                  <option value="csv">CSV</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Sort</span>
+                <select id="f-sort" name="sort">
+                  <option value="quality">Best first</option>
+                  <option value="latency">Fastest first</option>
+                  <option value="random">Random</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="check">
+              <input id="f-verified" type="checkbox" checked>
+              <span><b>Verified only</b><small>Entries the upstream checker confirmed on its last hourly run.</small></span>
+            </label>
+          </form>
+        </div>
+
+        <div class="try-main">
+          <div class="urlbar">
+            <code id="q-url" tabindex="0" aria-label="Request URL">…</code>
+            <button class="copy copy-ink" type="button" data-copy="#q-url" aria-label="Copy request URL">Copy</button>
+            <a class="open" id="q-open" href="#" target="_blank" rel="noopener">Open</a>
+          </div>
+
+          <div class="result" id="result" aria-live="polite" aria-busy="true">
+            <div class="result-meta" id="result-meta">Loading…</div>
+            <div class="result-body" id="result-body"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOURCES -->
+    <section class="sources on-paper" id="sources" aria-labelledby="src-h">
+      <div class="wrap src-grid">
+        <div class="src-intro">
+          <h2 id="src-h">We rank by who checks, not who’s biggest.</h2>
+          <p>Heardlist doesn’t run its own scanners. It merges three public community lists, removes duplicates and private addresses, and orders them so the entries with real verification evidence come first.</p>
+          <p class="proof"><b>Free proxies rot fast.</b> In a research probe on 7 Oct 2026, 25 HTTP proxies from the top tier were sampled minutes after their hourly re-check: 9 answered (36%), median 6.3&nbsp;s. That’s the best case. Check before you use.</p>
+        </div>
+
+        <ol class="src-list" id="src-list">
+          <li class="src">
+            <div class="src-rank">Tier 1</div>
+            <div class="src-body">
+              <h3><a href="https://github.com/monosans/proxy-list" rel="noopener">monosans/proxy-list</a></h3>
+              <p>Re-checked hourly with a full real-page fetch, so connect-then-stall proxies never make it in. Carries response time and country. MIT licensed.</p>
+              <p class="src-tag">Verified · sorted by response time</p>
+            </div>
+            <div class="src-count num" data-src-count="monosans" aria-label="entries">—</div>
+          </li>
+          <li class="src">
+            <div class="src-rank">Tier 2</div>
+            <div class="src-body">
+              <h3><a href="https://github.com/proxifly/free-proxy-list" rel="noopener">proxifly/free-proxy-list</a></h3>
+              <p>The largest raw pool, with anonymity and country fields. We don’t verify it, and most of its anonymity labels read “transparent”, so filter before you trust it.</p>
+              <p class="src-tag">Unverified · bulk</p>
+            </div>
+            <div class="src-count num" data-src-count="proxifly" aria-label="entries">—</div>
+          </li>
+          <li class="src">
+            <div class="src-rank">Tier 3</div>
+            <div class="src-body">
+              <h3><a href="https://github.com/TheSpeedX/PROXY-List" rel="noopener">TheSpeedX/PROXY-List</a></h3>
+              <p>Daily plain <code>host:port</code> files. No metadata and no verification evidence, so it only fills gaps.</p>
+              <p class="src-tag">Unverified · supplement</p>
+            </div>
+            <div class="src-count num" data-src-count="thespeedx" aria-label="entries">—</div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SAFETY -->
+    <section class="safety" id="safety" aria-labelledby="safe-h">
+      <div class="wrap safety-grid">
+        <h2 id="safe-h">Treat every proxy as a stranger’s computer.</h2>
+        <ul class="rules">
+          <li><b>Never route logins, tokens, accounts or private traffic through it.</b> The operator can read and change anything that isn’t protected end to end.</li>
+          <li><b>HTTPS only, certificate checks on.</b> A CONNECT tunnel keeps the payload encrypted, but the operator still sees which hostnames you visit.</li>
+          <li><b>Set short timeouts and rotate.</b> Three seconds or less. Drop anything that stalls and expect target sites to block datacenter ranges.</li>
+          <li><b>Run your own check right before use.</b> No list’s “verified” flag is a substitute. Public data only, please.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- CLOSE -->
+    <section class="close" aria-labelledby="close-h">
+      <div class="wrap close-in">
+        <h2 id="close-h">Take the list.</h2>
+        <div class="close-cmds">
+          <div class="cmd" role="group" aria-label="Plain text example">
+            <code id="close-cmd">curl "<span data-base>https://YOUR-HOST</span>/v1/socks5.txt?verified=true"</code>
+            <button class="copy" type="button" data-copy="#close-cmd" aria-label="Copy command">Copy</button>
+          </div>
+          <a class="btn btn-signal" href="/docs/">Open the docs <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>Heardlist aggregates public community lists and makes no guarantee that any proxy works or is safe. Thanks to <a href="https://github.com/monosans/proxy-list" rel="noopener">monosans</a>, <a href="https://github.com/proxifly/free-proxy-list" rel="noopener">proxifly</a> and <a href="https://github.com/TheSpeedX/PROXY-List" rel="noopener">TheSpeedX</a> for the data. Don’t use it to break the law or abuse other people’s services.</p>
+      <p><a href="/docs/">Docs</a> · <a href="/v1/stats">/v1/stats</a> · <a href="/v1/sources">/v1/sources</a> · <a href="/v1/health">/v1/health</a></p>
+    </div>
+  </footer>
+
+  <script src="/assets/landing.js" defer></script>
+</body>
+</html>

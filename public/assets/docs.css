@@ -1,0 +1,81 @@
+/* Docs — Read surface. The world owns the frame (masthead, rail, stamped verbs, code);
+   the reading column stays calm paper with real contrast. */
+
+.brand-sub { font: 600 0.72rem var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; background: var(--signal); color: var(--ink); padding: 0.15rem 0.45rem; margin-left: 0.15rem; transform: translateY(-1px); }
+
+.docs-shell { display: grid; grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr); align-items: stretch; min-height: calc(100svh - 5rem); }
+
+/* ---------- Rail ---------- */
+.rail { background: var(--cobalt); color: #fff; }
+.rail-details { position: sticky; top: 4.6rem; max-height: calc(100svh - 4.6rem); overflow-y: auto; padding: 1.6rem 1.1rem 2.5rem 1.4rem; overscroll-behavior: contain; scrollbar-color: var(--signal) transparent; }
+.rail-details > summary { display: none; }
+.rail-nav { display: flex; flex-direction: column; }
+.rail-h { font: 700 0.7rem var(--font-body); text-transform: uppercase; letter-spacing: 0.16em; color: #aab3ff; margin: 1.6rem 0 0.4rem 0.7rem; }
+.rail-h:first-child { margin-top: 0; }
+.rail-nav a { display: block; padding: 0.38rem 0.7rem; text-decoration: none; font-size: 0.97rem; font-weight: 500; color: #eef0ff; transition: background 0.15s, color 0.15s; }
+.rail-nav a:hover { background: rgba(255, 255, 255, 0.14); }
+.rail-nav a[aria-current="true"] { background: var(--signal); color: var(--ink); font-weight: 700; }
+.rail-nav code { font-size: 0.84rem; background: none; padding: 0; color: inherit; }
+.rail :focus-visible { outline-color: var(--signal); }
+
+/* ---------- Reading column ---------- */
+.docs-main { padding: clamp(2rem, 5vw, 4rem) clamp(1.25rem, 5vw, 5rem) 5rem; min-width: 0; }
+.prose { max-width: 48rem; }
+.prose h1 { font-size: clamp(2.6rem, 6vw, 4.4rem); font-weight: 800; letter-spacing: -0.035em; margin-bottom: 1.5rem; }
+.prose section { margin-top: 3.75rem; }
+.prose section:first-of-type { margin-top: 0; }
+.prose h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 800; padding-top: 1.1rem; border-top: 2px solid var(--ink); margin-bottom: 1.1rem; }
+.prose h3 { font-size: 1.3rem; font-weight: 700; margin: 2.2rem 0 0.5rem; letter-spacing: -0.015em; }
+.prose p, .prose li { font-size: 1.0625rem; line-height: 1.68; }
+.prose ul, .prose ol { padding-left: 1.25rem; margin: 0 0 1.2em; }
+.prose li { margin-bottom: 0.5rem; padding-left: 0.2rem; }
+.prose li::marker { color: var(--cobalt); font-weight: 700; }
+.prose strong { font-weight: 700; }
+.prose a { color: var(--cobalt-deep); text-decoration-color: rgba(18, 28, 168, 0.4); }
+.prose a:hover { text-decoration-color: currentColor; }
+
+.anchor { text-decoration: none !important; color: inherit !important; }
+.anchor:hover::after { content: " #"; color: var(--cobalt); font-weight: 500; }
+
+.prose :not(pre) > code { background: var(--paper-2); color: var(--ink); padding: 0.12em 0.38em; border-radius: 2px; font-size: 0.86em; overflow-wrap: anywhere; }
+.prose h2 code { background: none !important; padding: 0 !important; font-size: 0.78em; font-weight: 600; letter-spacing: -0.02em; }
+
+/* Endpoint headings carry a stamped verb */
+.verb { display: inline-block; background: var(--signal); color: var(--ink); font: 700 0.68em var(--font-mono); letter-spacing: 0.06em; padding: 0.22em 0.55em; margin-right: 0.55rem; vertical-align: 0.14em; border: 2px solid var(--ink); transform: rotate(-2deg); }
+
+/* Code */
+.prose pre { position: relative; margin: 1.1rem 0 1.7rem; padding: 2.4rem 1.2rem 1.1rem; background: var(--cobalt-ink); color: #e9ecff; overflow-x: auto; line-height: 1.6; tab-size: 2; }
+.prose pre::before { content: attr(data-lang); position: absolute; top: 0.7rem; left: 1.2rem; font: 600 0.68rem var(--font-body); text-transform: uppercase; letter-spacing: 0.14em; color: #9aa3e8; }
+.prose pre code { background: none; padding: 0; font-size: 0.86rem; white-space: pre; color: inherit; }
+.prose pre [data-base] { color: var(--signal); }
+.code-copy { position: absolute; top: 0.45rem; right: 0.5rem; border: 1px solid rgba(255, 255, 255, 0.28); background: transparent; color: #fff; padding: 0.22rem 0.65rem; font: 700 0.7rem var(--font-body); letter-spacing: 0.08em; text-transform: uppercase; transition: background 0.15s, color 0.15s; }
+.code-copy:hover, .code-copy[data-done] { background: var(--signal); color: var(--ink); border-color: var(--signal); }
+.prose pre:focus-visible { outline-color: var(--cobalt); }
+
+/* Tables */
+.spec { width: 100%; border-collapse: collapse; margin: 1.1rem 0 1.6rem; font-size: 0.97rem; }
+.spec th { text-align: left; font: 700 0.7rem var(--font-body); text-transform: uppercase; letter-spacing: 0.13em; color: var(--ink-soft); padding: 0 1rem 0.55rem 0; border-bottom: 2px solid var(--ink); white-space: nowrap; }
+.spec td { padding: 0.8rem 1rem 0.8rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; line-height: 1.55; }
+.spec td:first-child, .spec td:nth-child(2) code { white-space: nowrap; }
+.spec td p { margin: 0; }
+
+.pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 4rem; padding-top: 1.2rem; border-top: 2px solid var(--ink); font-weight: 600; }
+.pager a { text-decoration: none; }
+.pager a:hover { text-decoration: underline; }
+
+/* ---------- Narrow ---------- */
+@media (max-width: 900px) {
+  .docs-shell { grid-template-columns: minmax(0, 1fr); }
+  .rail-details { position: static; max-height: none; padding: 0; overflow: visible; }
+  .rail-details > summary { display: flex; align-items: center; justify-content: space-between; list-style: none; padding: 0.95rem var(--pad); font-weight: 700; cursor: pointer; border-bottom: 1px solid rgba(255, 255, 255, 0.25); }
+  .rail-details > summary::-webkit-details-marker { display: none; }
+  .rail-details > summary::after { content: "+"; font: 700 1.4rem var(--font-mono); }
+  .rail-details[open] > summary::after { content: "–"; }
+  .rail-nav { max-height: 55svh; overflow-y: auto; padding: 0.6rem var(--pad) 1.2rem; }
+  .spec { display: block; overflow-x: auto; }
+  .spec td:first-child { white-space: normal; }
+}
+@media (max-width: 560px) {
+  .top nav a:not(.nav-docs) { display: none; }
+  .prose pre code { font-size: 0.8rem; }
+}

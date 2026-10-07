@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Docs — Heardlist free proxy list API</title>
+  <meta name="description" content="API reference for Heardlist: query HTTP, HTTPS, SOCKS4 and SOCKS5 proxy lists as JSON, CSV or plain text. Filters, formats, limits, data quality and safe use.">
+  <meta name="theme-color" content="#1b2ce0">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/docs.css">
+</head>
+<body class="docs">
+  <a class="skip" href="#content">Skip to content</a>
+
+  <header class="top" id="top">
+    <div class="top-in">
+      <a class="brand" href="/" aria-label="Heardlist home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <circle cx="9" cy="23" r="3" fill="var(--signal)" stroke="none"/>
+          <path d="M9 14a9 9 0 0 1 9 9" stroke="var(--signal)"/>
+          <path d="M9 7a16 16 0 0 1 16 16" stroke="var(--signal)"/>
+        </svg>
+        Heardlist <span class="brand-sub">Docs</span>
+      </a>
+      <nav aria-label="Primary">
+        <a href="/#try">Try it</a>
+        <a href="/#safety">Safety</a>
+        <a class="nav-docs" href="/v1/stats">Live stats</a>
+      </nav>
+    </div>
+    <div class="dial" aria-hidden="true"><i class="needle"></i></div>
+  </header>
+
+  <div class="docs-shell">
+    <aside class="rail" aria-label="Documentation">
+      <details class="rail-details" id="rail" open>
+        <summary>Contents</summary>
+        <nav class="rail-nav">
+          <p class="rail-h">Start</p>
+          <a href="#overview">Overview</a>
+          <a href="#quickstart">Quick start</a>
+          <p class="rail-h">Conventions</p>
+          <a href="#conventions">Base URL &amp; access</a>
+          <a href="#responses">Responses</a>
+          <a href="#errors">Errors</a>
+          <a href="#limits">Limits &amp; caching</a>
+          <p class="rail-h">Endpoints</p>
+          <a href="#ep-proxies"><code>/v1/proxies</code></a>
+          <a href="#ep-random"><code>/v1/random</code></a>
+          <a href="#ep-txt"><code>/v1/{protocol}.txt</code></a>
+          <a href="#ep-stats"><code>/v1/stats</code></a>
+          <a href="#ep-sources"><code>/v1/sources</code></a>
+          <a href="#ep-health"><code>/v1/health</code></a>
+          <p class="rail-h">Guides</p>
+          <a href="#protocols">Protocols &amp; anonymity</a>
+          <a href="#quality">Data quality</a>
+          <a href="#safe">Using proxies safely</a>
+          <a href="#examples">Code examples</a>
+        </nav>
+      </details>
+    </aside>
+
+    <main class="docs-main" id="content">
+      <article class="prose">
+        <h1>Heardlist API</h1>
+
+        <section id="overview">
+          <h2><a class="anchor" href="#overview">Overview</a></h2>
+          <p>Heardlist is a free, read-only HTTP API that serves lists of public proxies: HTTP, HTTPS, SOCKS4 and SOCKS5. It merges three community-maintained sources, drops duplicates, private addresses and credentialed entries, and ranks what’s left so entries with real verification evidence come first. The data refreshes every hour.</p>
+          <p>It’s a <em>list</em> API. It doesn’t relay your traffic, and it doesn’t check proxies for you at request time. Read <a href="#quality">Data quality</a> and <a href="#safe">Using proxies safely</a> before you build on it.</p>
+        </section>
+
+        <section id="quickstart">
+          <h2><a class="anchor" href="#quickstart">Quick start</a></h2>
+          <p>Get five verified SOCKS5 proxies as JSON:</p>
+<pre data-lang="shell"><code>curl "<span data-base>https://YOUR-HOST</span>/v1/proxies?protocol=socks5&amp;verified=true&amp;limit=5"</code></pre>
+          <p>Or as plain <code>host:port</code> lines, ready for a tool that reads a proxy file:</p>
+<pre data-lang="shell"><code>curl "<span data-base>https://YOUR-HOST</span>/v1/socks5.txt?verified=true&amp;limit=50"</code></pre>
+          <p>Or one random station, formatted as a full proxy URL:</p>
+<pre data-lang="shell"><code>curl "<span data-base>https://YOUR-HOST</span>/v1/random?protocol=http&amp;format=txt&amp;scheme=true"</code></pre>
+        </section>
+
+        <section id="conventions">
+          <h2><a class="anchor" href="#conventions">Base URL &amp; access</a></h2>
+          <p>All endpoints live under <code><span data-base>https://YOUR-HOST</span>/v1</code>.</p>
+          <ul>
+            <li><strong>No authentication.</strong> No API key, no signup.</li>
+            <li><strong>CORS is open.</strong> Responses carry <code>Access-Control-Allow-Origin: *</code>, so you can call the API from a browser.</li>
+            <li><strong>Methods.</strong> <code>GET</code>, <code>HEAD</code> and <code>OPTIONS</code>. Anything else returns <code>405</code>.</li>
+            <li><strong>Public data only.</strong> Don’t use the list to attack or abuse other people’s services.</li>
+          </ul>
+        </section>
+
+        <section id="responses">
+          <h2><a class="anchor" href="#responses">Responses</a></h2>
+          <p>List endpoints return a JSON envelope by default. The example below uses documentation-range addresses, not real proxies.</p>
+<pre data-lang="json"><code>{
+  "meta": {
+    "count": 2,
+    "total": 118,
+    "limit": 2,
+    "offset": 0,
+    "sort": "quality",
+    "updated_at": "2026-10-07T10:07:04.112Z"
+  },
+  "data": [
+    {
+      "proxy": "203.0.113.10:1080",
+      "url": "socks5://203.0.113.10:1080",
+      "protocol": "socks5",
+      "host": "203.0.113.10",
+      "port": 1080,
+      "country": "US",
+      "anonymity": null,
+      "latency": 0.18,
+      "source": "monosans",
+      "verified": true
+    },
+    {
+      "proxy": "198.51.100.7:8080",
+      "url": "http://198.51.100.7:8080",
+      "protocol": "http",
+      "host": "198.51.100.7",
+      "port": 8080,
+      "country": "DE",
+      "anonymity": null,
+      "latency": 2.55,
+      "source": "monosans",
+      "verified": true
+    }
+  ]
+}</code></pre>
+
+          <table class="spec">
+            <thead><tr><th>Field</th><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>proxy</code></td><td>string</td><td><code>host:port</code>.</td></tr>
+              <tr><td><code>url</code></td><td>string</td><td>Proxy URL to hand to a client. The scheme describes how you talk <em>to</em> the proxy. <code>https</code> entries are plain HTTP proxies that tunnel TLS, so their URL starts with <code>http://</code>.</td></tr>
+              <tr><td><code>protocol</code></td><td>string</td><td><code>http</code>, <code>https</code>, <code>socks4</code> or <code>socks5</code>.</td></tr>
+              <tr><td><code>host</code>, <code>port</code></td><td>string, integer</td><td>IPv4 address and port.</td></tr>
+              <tr><td><code>country</code></td><td>string | null</td><td>ISO 3166-1 alpha-2 code, when the source provides one.</td></tr>
+              <tr><td><code>anonymity</code></td><td>string | null</td><td><code>elite</code>, <code>anonymous</code> or <code>transparent</code>. Only some sources state it; otherwise <code>null</code>.</td></tr>
+              <tr><td><code>latency</code></td><td>number | null</td><td>Response time in seconds measured by the upstream checker at its last run. <code>null</code> when the source doesn’t measure it.</td></tr>
+              <tr><td><code>source</code></td><td>string</td><td><code>monosans</code>, <code>proxifly</code> or <code>thespeedx</code>.</td></tr>
+              <tr><td><code>verified</code></td><td>boolean</td><td><code>true</code> when the source verifies every entry it publishes. Heardlist itself does not re-check.</td></tr>
+            </tbody>
+          </table>
+
+          <p>List responses also set <code>X-Total-Count</code> (matches before paging) and <code>X-Updated-At</code> (when the data was last refreshed) as headers, which is handy with <code>format=txt</code> and <code>format=csv</code>.</p>
+        </section>
+
+        <section id="errors">
+          <h2><a class="anchor" href="#errors">Errors</a></h2>
+          <p>Errors are JSON with a stable <code>code</code> and a human-readable <code>message</code>.</p>
+<pre data-lang="json"><code>{ "error": { "code": "invalid_param", "message": "Invalid protocol: ftp. Allowed: http, https, socks4, socks5." } }</code></pre>
+          <table class="spec">
+            <thead><tr><th>Status</th><th>Code</th><th>When</th></tr></thead>
+            <tbody>
+              <tr><td class="num">400</td><td><code>invalid_param</code></td><td>A query parameter has a bad value. The message names it.</td></tr>
+              <tr><td class="num">404</td><td><code>not_found</code></td><td>No such endpoint.</td></tr>
+              <tr><td class="num">405</td><td><code>method_not_allowed</code></td><td>Anything other than GET, HEAD or OPTIONS.</td></tr>
+              <tr><td class="num">429</td><td><code>rate_limited</code></td><td>Too many requests. Wait for the <code>Retry-After</code> seconds.</td></tr>
+              <tr><td class="num">500</td><td><code>internal_error</code></td><td>Something broke on our side. Retry shortly.</td></tr>
+            </tbody>
+          </table>
+          <p>An empty result is not an error: filters that match nothing return <code>200</code> with <code>"data": []</code>.</p>
+        </section>
+
+        <section id="limits">
+          <h2><a class="anchor" href="#limits">Limits &amp; caching</a></h2>
+          <ul>
+            <li><strong>Rate limit.</strong> By default, 120 requests per minute per IP. The operator of a deployment can change it.</li>
+            <li><strong>Page size.</strong> <code>limit</code> is 1–5000, default 100. Page with <code>offset</code>.</li>
+            <li><strong>Refresh cadence.</strong> Data is rebuilt hourly. Polling more often than every few minutes gains nothing.</li>
+            <li><strong>Caching.</strong> Responses are cached for one minute in browsers and five minutes at the edge. <code>/v1/random</code> and <code>sort=random</code> are never cached.</li>
+            <li><strong>Staleness.</strong> If every upstream is unreachable, the last good data keeps being served. After 12 hours without a successful refresh it expires and the list becomes empty rather than serve very old addresses. <a href="#ep-health"><code>/v1/health</code></a> reports this.</li>
+          </ul>
+        </section>
+
+        <!-- ENDPOINTS -->
+        <section id="ep-proxies" class="endpoint">
+          <h2><a class="anchor" href="#ep-proxies"><span class="verb">GET</span> <code>/v1/proxies</code></a></h2>
+          <p>The main list endpoint. Combine any of these filters; they’re ANDed together. Comma-separated values within one filter are ORed.</p>
+          <table class="spec">
+            <thead><tr><th>Parameter</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>protocol</code></td><td>any</td><td><code>http</code>, <code>https</code>, <code>socks4</code>, <code>socks5</code>. Comma-separate to combine, e.g. <code>socks4,socks5</code>.</td></tr>
+              <tr><td><code>country</code></td><td>any</td><td>ISO alpha-2 codes, case-insensitive: <code>US,DE</code>. Entries with no known country never match.</td></tr>
+              <tr><td><code>anonymity</code></td><td>any</td><td><code>elite</code>, <code>anonymous</code>, <code>transparent</code>. Entries where the source doesn’t state it never match.</td></tr>
+              <tr><td><code>source</code></td><td>any</td><td><code>monosans</code>, <code>proxifly</code>, <code>thespeedx</code>.</td></tr>
+              <tr><td><code>verified</code></td><td>any</td><td><code>true</code> keeps only entries from sources that verify what they publish. <code>false</code> keeps the rest.</td></tr>
+              <tr><td><code>max_latency</code></td><td>none</td><td>Seconds, above 0 up to 120. Keeps entries with a measured response time at or under this value. Entries with no measurement are excluded.</td></tr>
+              <tr><td><code>sort</code></td><td><code>quality</code></td><td><code>quality</code>: source tier, then response time, then anonymity. <code>latency</code>: fastest measured first, unmeasured entries excluded. <code>random</code>: a fresh random draw each call.</td></tr>
+              <tr><td><code>limit</code></td><td><code>100</code></td><td>1–5000.</td></tr>
+              <tr><td><code>offset</code></td><td><code>0</code></td><td>Entries to skip. Ignored when <code>sort=random</code>.</td></tr>
+              <tr><td><code>format</code></td><td><code>json</code></td><td><code>json</code>, <code>txt</code> (one <code>host:port</code> per line) or <code>csv</code> (columns <code>host,port,protocol,country,anonymity,latency,source,verified</code>).</td></tr>
+              <tr><td><code>scheme</code></td><td><code>false</code></td><td>With <code>format=txt</code>, prefix each line with the proxy URL scheme: <code>socks5://203.0.113.10:1080</code>.</td></tr>
+            </tbody>
+          </table>
+          <p>Example: the 20 fastest verified HTTP proxies in Germany or France.</p>
+<pre data-lang="shell"><code>curl "<span data-base>https://YOUR-HOST</span>/v1/proxies?protocol=http&amp;country=DE,FR&amp;verified=true&amp;sort=latency&amp;limit=20"</code></pre>
+        </section>
+
+        <section id="ep-random" class="endpoint">
+          <h2><a class="anchor" href="#ep-random"><span class="verb">GET</span> <code>/v1/random</code></a></h2>
+          <p>Shorthand for <code>/v1/proxies?sort=random&amp;limit=1</code>. It accepts every filter above, and <code>limit</code> to draw several at once. Responses are never cached, so each call is a fresh draw. Use it for a quick rotation, and run your own check on whatever you get.</p>
+<pre data-lang="shell"><code>curl "<span data-base>https://YOUR-HOST</span>/v1/random?protocol=socks5&amp;verified=true"</code></pre>
+        </section>
+
+        <section id="ep-txt" class="endpoint">
+          <h2><a class="anchor" href="#ep-txt"><span class="verb">GET</span> <code>/v1/{protocol}.txt</code></a></h2>
+          <p>Plain-text lists for tools that load a proxy file. <code>{protocol}</code> is <code>http</code>, <code>https</code>, <code>socks4</code> or <code>socks5</code>. It takes the same filters and paging as <code>/v1/proxies</code>, and always returns <code>text/plain</code>.</p>
+<pre data-lang="shell"><code>curl -o socks5.txt "<span data-base>https://YOUR-HOST</span>/v1/socks5.txt?verified=true&amp;limit=500"</code></pre>
+        </section>
+
+        <section id="ep-stats" class="endpoint">
+          <h2><a class="anchor" href="#ep-stats"><span class="verb">GET</span> <code>/v1/stats</code></a></h2>
+          <p>Counts and freshness for the current dataset. Counts are after de-duplication across sources.</p>
+<pre data-lang="json"><code>{
+  "total": 9024,
+  "verified": 1435,
+  "countries": 71,
+  "by_protocol": { "http": 3100, "https": 980, "socks4": 640, "socks5": 4304 },
+  "by_source":   { "monosans": 1435, "proxifly": 5200, "thespeedx": 2389 },
+  "updated_at": "2026-10-07T10:07:04.112Z",
+  "age_minutes": 12,
+  "stale": false,
+  "sources": {
+    "monosans": { "ok": true, "fetched_at": "2026-10-07T10:07:04.112Z", "count": 1435 }
+  }
+}</code></pre>
+          <p>The numbers are illustrative. <code>stale</code> turns <code>true</code> after three hours without a refresh. A source that failed its last run shows <code>"ok": false</code> with an <code>error</code> string, and its previous entries stay in the list until they expire.</p>
+        </section>
+
+        <section id="ep-sources" class="endpoint">
+          <h2><a class="anchor" href="#ep-sources"><span class="verb">GET</span> <code>/v1/sources</code></a></h2>
+          <p>The upstream sources, their tier, whether they verify entries, their homepage and license, and the status of the last refresh. Use it to credit the data you rely on.</p>
+        </section>
+
+        <section id="ep-health" class="endpoint">
+          <h2><a class="anchor" href="#ep-health"><span class="verb">GET</span> <code>/v1/health</code></a></h2>
+          <p>A cheap liveness check for monitors. It returns <code>200</code> when there is any data and <code>503</code> when the list is empty. In the body, <code>ok</code> is <code>true</code> only when the list is non-empty <em>and</em> fresher than three hours.</p>
+<pre data-lang="json"><code>{ "ok": true, "total": 9024, "updated_at": "2026-10-07T10:07:04.112Z", "stale": false }</code></pre>
+        </section>
+
+        <!-- GUIDES -->
+        <section id="protocols">
+          <h2><a class="anchor" href="#protocols">Protocols &amp; anonymity</a></h2>
+          <table class="spec">
+            <thead><tr><th>Protocol</th><th>What it is</th><th>Pick it for</th></tr></thead>
+            <tbody>
+              <tr><td><code>http</code></td><td>Application-layer proxy. For plain HTTP it can read and rewrite headers and bodies. For HTTPS it tunnels with the <code>CONNECT</code> method, which clients do automatically.</td><td>General web requests.</td></tr>
+              <tr><td><code>https</code></td><td>HTTP proxies a source explicitly flags as handling HTTPS. You still connect to the proxy over plain HTTP; the label is about what it can tunnel.</td><td>When you need a source’s own HTTPS flag.</td></tr>
+              <tr><td><code>socks4</code></td><td>Relays raw TCP. No UDP, no authentication, no remote DNS.</td><td>Legacy TCP tools.</td></tr>
+              <tr><td><code>socks5</code></td><td>Relays TCP and UDP, supports authentication and remote DNS, so hostnames resolve on the proxy and don’t leak from your machine.</td><td>Most scraping and anything that isn’t only web traffic.</td></tr>
+            </tbody>
+          </table>
+          <p>Entries from the verified tier labelled <code>http</code> are CONNECT-capable HTTP proxies, so they can carry HTTPS even though there is no separate <code>https</code> file for that source.</p>
+          <p><strong>Anonymity</strong> is judged from the headers a target server sees. <em>Elite</em> proxies add nothing that identifies you or the proxy. <em>Anonymous</em> proxies hide your IP but announce themselves, for example with a <code>Via</code> header. <em>Transparent</em> proxies pass your real IP along in <code>X-Forwarded-For</code> and give no privacy at all. SOCKS proxies can’t add HTTP headers, so checkers tend to rate them elite. A checker that only tests over HTTPS will also rate a leaky HTTP proxy elite, because the tunnel hides its headers. Treat the <code>anonymity</code> field as a hint.</p>
+        </section>
+
+        <section id="quality">
+          <h2><a class="anchor" href="#quality">Data quality</a></h2>
+          <p>Heardlist merges three upstream lists and orders them by tier:</p>
+          <ol>
+            <li><strong>monosans/proxy-list</strong> (<code>verified: true</code>). Re-checked hourly with a full real-page fetch; proxies that connect and then stall are excluded. Provides response time and country. MIT licensed.</li>
+            <li><strong>proxifly/free-proxy-list</strong>. A large raw pool with anonymity and country fields. We don’t verify it. In the combined file reviewed on 7 Oct 2026, 50,855 of 51,262 entries were labelled <code>transparent</code>, and its <code>score</code> was 1 for every entry, so we ignore it.</li>
+            <li><strong>TheSpeedX/PROXY-List</strong>. Daily <code>host:port</code> files with no metadata and no verification evidence.</li>
+          </ol>
+          <p>When the same <code>protocol + host:port</code> appears in more than one source, the highest tier wins. Private, loopback, link-local and carrier-grade-NAT addresses, invalid ports and entries that carry credentials are dropped. At most 10,000 entries per protocol are kept from any one source, which truncates proxifly’s very large SOCKS5 file.</p>
+          <p><strong>“Verified” means the source’s check passed at its last run.</strong> Heardlist does not re-check, and a free proxy’s status decays within hours. In a research probe on 7 Oct 2026, 25 HTTP proxies from the verified tier were tried through a real request minutes after the hourly re-check: 9 answered correctly (36%), with response times from 0.75 s to 16.2 s and a median of 6.3 s. That is the best case. Expect fewer to work later in the hour, and fewer still from the unverified tiers.</p>
+          <p>So: always put a checker you control between the list and your workload. There’s one in <a href="#examples">the examples</a>.</p>
+        </section>
+
+        <section id="safe">
+          <h2><a class="anchor" href="#safe">Using proxies safely</a></h2>
+          <p>Free public proxies are untrusted by construction. Whoever runs one can see and change whatever isn’t protected end to end, and some are run as honeypots or are compromised machines.</p>
+          <ul>
+            <li><strong>Never send credentials, tokens, session cookies, payment data or private API keys through one.</strong> Public data only.</li>
+            <li><strong>Don’t send plain HTTP.</strong> The operator can read it, log it and inject scripts into the response.</li>
+            <li><strong>Keep TLS certificate verification on.</strong> A tunnel keeps the payload encrypted, but a hostile proxy can still refuse, downgrade or tamper with the handshake. The hostname you connect to is also visible to the operator, unless you use Encrypted Client Hello.</li>
+            <li><strong>Use short timeouts.</strong> Three seconds or less for connect and read, so a stalling proxy can’t hold your workers.</li>
+            <li><strong>Rotate and expect blocks.</strong> Many target sites block datacenter ranges and known proxy lists.</li>
+            <li><strong>Isolate the workload.</strong> Run checkers and scrapers in a stateless container with no access to your internal network.</li>
+          </ul>
+          <p>If you need reliability or privacy, a paid provider with an authenticated endpoint is the right tool. A free list is the right tool for large volumes of public, non-sensitive requests.</p>
+        </section>
+
+        <section id="examples">
+          <h2><a class="anchor" href="#examples">Code examples</a></h2>
+
+          <h3>Fetch, check, then use (Python)</h3>
+          <p>Pull a candidate set, keep only the proxies that complete a real HTTPS request inside three seconds, and use those. This needs <code>aiohttp</code> and <code>aiohttp-socks</code>.</p>
+<pre data-lang="python"><code>import asyncio
+import aiohttp
+from aiohttp_socks import ProxyConnector
+
+API = "<span data-base>https://YOUR-HOST</span>/v1/proxies?verified=true&amp;limit=200"
+TEST_URL = "https://example.com/"
+
+async def alive(proxy_url: str) -> bool:
+    try:
+        connector = ProxyConnector.from_url(proxy_url)   # http://, socks4://, socks5://
+        timeout = aiohttp.ClientTimeout(total=3)
+        async with aiohttp.ClientSession(connector=connector, timeout=timeout) as s:
+            async with s.get(TEST_URL) as r:
+                return r.status == 200
+    except Exception:
+        return False
+
+async def main():
+    async with aiohttp.ClientSession() as s:
+        async with s.get(API) as r:
+            candidates = [p["url"] for p in (await r.json())["data"]]
+
+    results = await asyncio.gather(*(alive(u) for u in candidates))
+    good = [u for u, ok in zip(candidates, results) if ok]
+    print(f"{len(good)} of {len(candidates)} passed")
+    for u in good[:10]:
+        print(u)
+
+asyncio.run(main())</code></pre>
+
+          <h3>Fetch and test an HTTP proxy (Node.js)</h3>
+          <p>Node 18+ with <code>undici</code> installed.</p>
+<pre data-lang="javascript"><code>import { ProxyAgent, fetch } from "undici";
+
+const API = "<span data-base>https://YOUR-HOST</span>/v1/proxies?protocol=http&amp;verified=true&amp;limit=20";
+const { data } = await (await fetch(API)).json();
+
+for (const p of data) {
+  try {
+    const res = await fetch("https://example.com/", {
+      dispatcher: new ProxyAgent(p.url),
+      signal: AbortSignal.timeout(3000),
+    });
+    console.log(res.status, p.proxy);
+  } catch {
+    // dead, slow or hostile: skip it
+  }
+}</code></pre>
+
+          <h3>Load a text list in the browser</h3>
+          <p>CORS is open, so the API works from a web page. Here it feeds a country filter into a list.</p>
+<pre data-lang="javascript"><code>const res = await fetch("<span data-base>https://YOUR-HOST</span>/v1/proxies?country=IN&amp;limit=10");
+if (!res.ok) throw new Error((await res.json()).error.message);
+const { meta, data } = await res.json();
+console.log(`${meta.count} of ${meta.total}`, data.map((p) =&gt; p.proxy));</code></pre>
+        </section>
+
+        <nav class="pager" aria-label="Back to top">
+          <a href="#overview">Back to top ↑</a>
+          <a href="/">Heardlist home</a>
+        </nav>
+      </article>
+    </main>
+  </div>
+
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <p>Heardlist aggregates public community lists and makes no guarantee that any proxy works or is safe. Data from <a href="https://github.com/monosans/proxy-list" rel="noopener">monosans</a>, <a href="https://github.com/proxifly/free-proxy-list" rel="noopener">proxifly</a> and <a href="https://github.com/TheSpeedX/PROXY-List" rel="noopener">TheSpeedX</a>.</p>
+    </div>
+  </footer>
+
+  <script src="/assets/docs.js" defer></script>
+</body>
+</html>

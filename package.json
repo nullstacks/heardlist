@@ -1,0 +1,15 @@
+{
+  "name": "heardlist",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Free public proxy-list API on Cloudflare Workers, with landing page and docs.",
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

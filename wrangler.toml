@@ -1,0 +1,32 @@
+name = "heardlist"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# Landing page + docs are static assets. Only /v1/* runs the Worker first.
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/v1/*"]
+
+# Create with:  npx wrangler kv namespace create PROXIES
+# then paste the returned id below.
+[[kv_namespaces]]
+binding = "PROXIES"
+id = "4ea27d2626d84c0fa9ca051ba97f25c2"
+
+# Refresh upstream lists every hour (minute 7 avoids the top-of-hour rush).
+[triggers]
+crons = ["7 * * * *"]
+
+# Optional per-IP rate limit (120 requests / 60 s). Delete this block to disable.
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 120, period = 60 }
+
+[observability]
+enabled = true
+
+# Optional: set a secret to allow POST /v1/admin/refresh
+#   npx wrangler secret put ADMIN_TOKEN
