@@ -8,7 +8,7 @@
 </p>
 
 A free, public proxy-list API on Cloudflare Workers, with a landing page and docs.
-No API key, CORS open. Built from the research in `free-proxy-sources.md`.
+No API key, CORS open.
 
 - **API**: `GET /v1/proxies`, `/v1/random`, `/v1/{http|https|socks4|socks5}.txt`, `/v1/stats`, `/v1/sources`, `/v1/health`
 - **Landing page**: `/` (live station card, query playground, source tiers, safety)
