@@ -1,5 +1,9 @@
 # Heardlist
 
+**[▶ Watch the 24-second launch video](docs/media/launch.mp4)**
+
+[![Heardlist — launch video](docs/media/poster.jpg)](docs/media/launch.mp4)
+
 <p align="center">
   <a href="https://heardlist.pushkarsingh4343.workers.dev"><strong>Live demo</strong></a> ·
   <a href="https://heardlist.pushkarsingh4343.workers.dev/docs/">API docs</a> ·
